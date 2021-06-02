@@ -1,17 +1,25 @@
 {
-  "name": "fronted",
+  "name": "frontend",
   "version": "1.0.0",
   "main": "index.js",
   "license": "MIT",
   "devDependencies": {
-    "copy-webpack-plugin": "^9.0.0",
-    "html-webpack-plugin": "^5.3.1",
-    "webpack": "^5.38.1",
-    "webpack-cli": "^4.7.0",
-    "webpack-dev-server": "^3.11.2"
+    "art-template": "4.13.2",
+    "art-template-loader": "1.4.3",
+    "clean-webpack-plugin": "^4.0.0-alpha.0",
+    "copy-webpack-plugin": "6.3.2",
+    "css-loader": "^5.2.6",
+    "html-webpack-plugin": "4.5.0",
+    "style-loader": "^2.0.0",
+    "webpack": "4.44.2",
+    "webpack-cli": "3.3.12",
+    "webpack-dev-server": "3.11.0"
   },
   "scripts": {
     "build": "npx webpack",
     "dev": "npx webpack-dev-server"
+  },
+  "dependencies": {
+    "sme-router": "^0.12.8"
   }
 }
