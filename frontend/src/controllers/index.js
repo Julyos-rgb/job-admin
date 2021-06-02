@@ -1,6 +1,7 @@
 import indexTpl from '../views/index.art'
 import signinTPl from '../views/signin.art'
 import usersTpl from '../views/users.art'
+import usersListTpl from '../views/users-list.art'
 
 const htmlIndex = indexTpl({})
 const htmlSignin = signinTPl({})
@@ -17,14 +18,27 @@ const _signup = () => {
     //提交表单
     const data = $('#users-form').serialize()
     $.ajax({
-        url:'/api/users/signup',
-        type: 'POST',
+        url: '/api/users/signup',
+        type: 'post',
         data,
-        success(res){
+        success(res) {
             console.log(res)
+            _list()
         }
     })
+    //单击关闭模态框
     $btnClose.click()
+}
+
+const _list = () => {
+    $.ajax({
+        url: '/api/users/list',
+        success(result) {
+            $('#users-list').html(usersListTpl({
+                data: result.data
+            }))
+        }
+    })
 }
 const signin = (router) => {
     return (req, res, next) => {
@@ -43,6 +57,8 @@ const index = (router) => {
         //填充用户列表
         $('#content').html(usersTpl())
 
+        //渲染list
+        _list()
         //点击提交保存表单
         $('#users-save').on('click', _signup)
     }

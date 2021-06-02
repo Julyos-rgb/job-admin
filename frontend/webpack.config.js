@@ -53,6 +53,11 @@ module.exports = {
     //配置server
     devServer: {
         contentBase: path.join(__dirname, './dist'),
-        port: 8080
+        port: 8080,
+        proxy:{
+            "/api":{
+                target: 'http://localhost:3000'
+            }
+        }
     }
 }
