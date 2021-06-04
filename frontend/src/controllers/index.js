@@ -1,70 +1,65 @@
 import indexTpl from '../views/index.art'
-import signinTPl from '../views/signin.art'
-import usersTpl from '../views/users.art'
-import usersListTpl from '../views/users-list.art'
+import { auth as authModel } from '../models/auth'
+import pageHeader from '../components/pageheader'
 
-const htmlIndex = indexTpl({})
-const htmlSignin = signinTPl({})
+import page from '../databus/page'
 
-const _handleSubmit = (router) => {
-    return (e) => {
-        e.preventDefault()
-        router.go('/index')
-    }
-}
-
-const _signup = () => {
-    const $btnClose = $('users-close')
-    //提交表单
-    const data = $('#users-form').serialize()
-    $.ajax({
-        url: '/api/users/signup',
-        type: 'post',
-        data,
-        success(res) {
-            console.log(res)
-            _list()
-        }
-    })
-    //单击关闭模态框
-    $btnClose.click()
-}
-
-const _list = () => {
-    $.ajax({
-        url: '/api/users/list',
-        success(result) {
-            $('#users-list').html(usersListTpl({
-                data: result.data
-            }))
-        }
-    })
-}
-const signin = (router) => {
-    return (req, res, next) => {
-        res.render(htmlSignin)
-        $('#signin').on('submit', _handleSubmit(router))
-    }
-}
+import img from '../assets/user2-160x160.jpg'
 
 const index = (router) => {
-    return (req, res, next) => {
-        res.render(htmlIndex)
+  return async (req, res, next) => {
+    let result = await authModel()
+    if(result.ret) {
+      const html = indexTpl({
+        subRouter: res.subRoute(),
+        img
+      })
 
-        //window resize 让页面撑满整个屏幕
-        $(window, '.wrapper').resize()
+      // 渲染首页
+      next(html)
 
-        //填充用户列表
-        $('#content').html(usersTpl())
+      // window resize, 让页面撑满整个屏幕
+      $(window, '.wrapper').resize()
 
-        //渲染list
-        _list()
-        //点击提交保存表单
-        $('#users-save').on('click', _signup)
+      // 加载页面导航
+      pageHeader()
+
+      const $as = $('#sidebar-menu li:not(:first-child) a')
+      let hash = location.hash
+      $as
+        .filter(`[href="${hash}"]`)
+        .parent()
+        .addClass('active')
+        .siblings()
+        .removeClass('active')
+
+      // 是否重置page
+      if (hash !== page.curRoute) {
+        page.reset()
+      }
+
+      // 当前url保存
+      page.setCurRoute(hash)
+
+      // 登出事件绑定
+      $('#users-signout').off('click').on('click', (e) => {
+        e.preventDefault()
+        localStorage.setItem('lg-token', '')
+        location.reload()
+      })
+
+      // socket
+      var socket = io.connect('http://localhost:3000')
+
+      socket.on('message', function(msg){
+        let num = ~~$('#icon-email').text()
+        $('#icon-email').text(++num)
+      })
+      
+    } else {
+      router.go('/signin')
     }
+  }
 }
 
-export {
-    signin,
-    index
-}
+export default index
